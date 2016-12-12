@@ -4,5 +4,3 @@ A Schema class for validating advanced validation of any Javascript object. Insp
 
 documentation will be here soon.
 
-Concardis TEST Api User 
-zurpayment:{@6YU4#?Ty
