@@ -1,0 +1,35 @@
+{
+  "name": "dots-schema",
+  "version": "0.2.7",
+  "description": "Provides a Schema Class for advanced object validation",
+  "main": "dist/es5/index.js",
+  "private": true,
+  "scripts": {
+    "test": "NODE_ENV=test gulp test:unit"
+  },
+  "author": "Tim Sollbach <t.sollbach@1a-concept.com>",
+  "devDependencies": {
+    "@types/chai": "^3.4.34",
+    "@types/lodash": "^4.14.39",
+    "@types/mocha": "^2.2.33",
+    "@types/moment": "^2.13.0",
+    "@types/node": "^6.0.48",
+    "app-module-path": "^2.1.0",
+    "chai": "^3.5.0",
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-mocha": "^3.0.1",
+    "gulp-plumber": "^1.1.0",
+    "gulp-sourcemaps": "^2.2.0",
+    "gulp-typescript": "^3.1.2",
+    "merge2": "^1.0.2",
+    "mocha": "^3.1.2",
+    "run-sequence": "^1.2.2",
+    "ts-node": "^1.7.0",
+    "typescript": "^2.0.10"
+  },
+  "dependencies": {
+    "lodash": "^4.17.2",
+    "moment": "^2.17.0"
+  }
+}
