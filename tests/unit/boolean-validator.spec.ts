@@ -17,7 +17,7 @@ describe('BooleanValidator', () => {
             bool: false
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(true)
+        expect(result).to.equal(null)
 
         result = schema.validate({
             bool: 1

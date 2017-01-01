@@ -21,7 +21,7 @@ describe('StringValidator', () => {
             string: '123'
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(true)
+        expect(result).to.equal(null)
 
         result = schema.validate({
             string: 1
@@ -66,7 +66,7 @@ describe('StringValidator', () => {
             string: 'test@example.com'
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(true)
+        expect(result).to.equal(null)
 
         result = schema.validate({
             string: 'testexample.com'

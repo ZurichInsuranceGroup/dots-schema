@@ -86,40 +86,28 @@ export class Schema {
         }
     }
 
-    validate(object: any, key?: string | ValidationOptions, options?: ValidationOptions): ValidationResult | null {
-        if (typeof options === 'undefined' && _.isObject(key)) {
-            options = key
-        }
-        options = _.defaults(options || {}, Schema.DefaultOptions)
-
-        if (typeof key !== 'string') {
+    public validate(object: any, key?: string | ValidationOptions, options?: ValidationOptions): ValidationResult | null {
+        options = _.defaults(key || {}, Schema.DefaultOptions)
+        if (typeof key === 'string') {
+            const validator = this.getValidator(key, object, options)
             if (options.clean) {
-                const cleanOptions = _.defaults(options.clean, Schema.DefaultCleanOptions)
+                const cleanOptions = _.defaults({}, options.clean, Schema.DefaultCleanOptions)
                 object = this.clean(object, cleanOptions)
             }
-
-            const result = new ComposedValidationResult()
-
-            for (let key in this.schema) {
-                if (this.schema.hasOwnProperty(key)) {
-                    result.and(this.validateKey(object[key], key, object, options))
-                }
-            }
-
-            return result
+            const result = validator(object, options)
+            return result.isValid() ? null : result
         } else {
+            const validator = this.getValidator(object, options)
             if (options.clean) {
-                const cleanOptions = _.defaults(options.clean, Schema.DefaultCleanOptions)
-                object = this.cleanKey(key, object, cleanOptions)
+                const cleanOptions = _.defaults({}, options.clean, Schema.DefaultCleanOptions)
+                object = this.clean(object, cleanOptions)
             }
-
-            const result = this.validateKey(object[key], key, object, options)
-
+            const result = validator(object, options)
             return result.isValid() ? null : result
         }
     }
 
-    clean(object: any, options: CleanOptions = {}): any {
+    public clean(object: any, options: CleanOptions = {}): any {
         if (typeof object === 'undefined' || object === null) {
             return object
         }
@@ -135,27 +123,101 @@ export class Schema {
         return result
     }
 
-    extend(schema: Schema): Schema {
+    public extend(schema: Schema): Schema {
         return this
     }
 
-    getValidators(key?: any, object?: any, options?: ValidationOptions): any {
+    private _getValidators(object: any, options?: ValidationOptions): any {
+        options = typeof options === 'object' ? _.defaults(options, this.options) : this.options
+        const validators: any = {}
+        for (let key in this.schema) {
+            if (this.schema.hasOwnProperty(key)) {
+                const keyValidators = {}
+                _.assign(keyValidators, RootValidator.getValidatorsForKey(key, this.schema[key], options, object))
+                validators[key] = keyValidators
+            }
+        }
+        return validators
+    }
+
+    private _getValidatorsForKey(key: any, object?: any, options?: ValidationOptions): any {
+        options = typeof options === 'object' ? _.defaults(options, this.options) : this.options
+        return RootValidator.getValidatorsForKey(key, this.schema[key], options, object)
+    }
+
+    public getValidators(key?: any, object?: any, options?: ValidationOptions): any {
         if (typeof key === 'string') {
-            options = typeof options === 'object' ? _.defaults(options, this.options) : this.options
-            return RootValidator.getValidatorsForKey(key, this.schema[key], options, object)
+            return this._getValidatorsForKey(key, object, options)
         } else {
-            options = object
-            object = key
-            options = typeof options === 'object' ? _.defaults(options, this.options) : this.options
-            const validators: any = {}
-            for (let key in this.schema) {
-                if (this.schema.hasOwnProperty(key)) {
-                    const keyValidators = {}
-                    _.assign(keyValidators, RootValidator.getValidatorsForKey(key, this.schema[key], options, object))
-                    validators[key] = keyValidators
+            return this._getValidators(key, object)
+        }
+    }
+
+    private _getValidatorForKey(property: string, object?: any, options?: ValidationOptions): any {
+        const validators = this.getValidators(object, options)
+
+        return (value: any, object?: any, options?: ValidationOptions) => {
+            const result = new ComposedValidationResult()
+            if (validators.hasOwnProperty(property)) {
+                const propertyValidators = validators[property]
+
+                for (let rule in propertyValidators) {
+                    if (propertyValidators.hasOwnProperty(rule)) {
+                        const validator = propertyValidators[rule]
+                        const error = validator(value[property], object, options)
+
+                        if (typeof error === 'string') {
+                            result.and({
+                                property: property,
+                                rule: rule,
+                                message: error
+                            })
+                        } else if (typeof error === 'object') {
+                            result.and(error)
+                        }
+                    }
                 }
             }
-            return validators
+            return result
+        }
+    }
+
+    private _getValidator(object?: any, options?: ValidationOptions): any {
+        const validators = this.getValidators(object, options)
+
+        return (value: any, object?: any, options?: ValidationOptions) => {
+            const result = new ComposedValidationResult()
+            for (let property in validators) {
+                if (validators.hasOwnProperty(property)) {
+                    const propertyValidators = validators[property]
+
+                    for (let rule in propertyValidators) {
+                        if (propertyValidators.hasOwnProperty(rule)) {
+                            const validator = propertyValidators[rule]
+                            const error = validator(value[property], object, options)
+
+                            if (typeof error === 'string') {
+                                result.and({
+                                    property: property,
+                                    rule: rule,
+                                    message: error
+                                })
+                            } else if (typeof error === 'object') {
+                                result.and(error)
+                            }
+                        }
+                    }
+                }
+            }
+            return result
+        }
+    }
+
+    public getValidator(key?: any, object?: any, options?: ValidationOptions): any {
+        if (typeof key === 'string') {
+            return this._getValidatorForKey(key, object, options)
+        } else {
+            return this._getValidator(key, object)
         }
     }
 }

@@ -25,7 +25,7 @@ export class DateValidator implements Validator {
             return null
         },
         before: (value: any, key: string, definition: ValidationDefinition) => {
-            if ((typeof value !== 'undefined' && value !== null) && (definition.before instanceof Date) && !moment(value).isBefore(definition.before)) {
+            if (value instanceof Date && (definition.before instanceof Date) && !moment(value).isBefore(definition.before)) {
                 return {
                     property: key,
                     rule: 'type',
@@ -35,7 +35,7 @@ export class DateValidator implements Validator {
             return null
         },
         after: (value: any, key: string, definition: ValidationDefinition) => {
-            if ((typeof value !== 'undefined' && value !== null) && (definition.after instanceof Date) && !moment(value).isAfter(definition.after)) {
+            if (value instanceof Date && (definition.after instanceof Date) && !moment(value).isAfter(definition.after)) {
                 return {
                     property: key,
                     rule: 'type',
@@ -52,11 +52,11 @@ export class DateValidator implements Validator {
         }
 
         if (definition.before) {
-            _.assign(validators, cleaned(DateValidator.RULES.before, key, definition, options))
+            validators.before = cleaned(DateValidator.RULES.before, key, definition, options)
         }
 
         if (definition.after) {
-            _.assign(validators, cleaned(DateValidator.RULES.after, key, definition, options))
+            validators.after = cleaned(DateValidator.RULES.after, key, definition, options)
         }
 
         return validators

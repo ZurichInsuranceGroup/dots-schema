@@ -11,14 +11,15 @@ export class ComposedValidationResult implements ValidationResult {
 
     readonly errors: ValidationError[]
 
-    public and(result: ValidationResult | null | ValidationError, key: String | null = null): void {
+    public and(result: ValidationResult | null | ValidationError, key: String | null = null, index: number | null = null): void {
         if (result != null) {
             if (result instanceof ComposedValidationResult) {
                 this.valid = this.valid && result.isValid()
 
                 const prefix = key ? `${key}.` : ''
+                const suffix = index !== null ? `.${index}` : ''
                 for (let error of result.getErrors()) {
-                    const property = `${prefix}${error.property}`
+                    const property = `${prefix}${error.property}${suffix}`
                     this.errors.push({
                         property: property,
                         rule: error.rule,
@@ -29,7 +30,8 @@ export class ComposedValidationResult implements ValidationResult {
                 const error = result as ValidationError
                 this.valid = false
                 const prefix = key ? `${key}.` : ''
-                const property = `${prefix}${error.property}`
+                const suffix = index !== null ? `.${index}` : ''
+                const property = `${prefix}${error.property}${suffix}`
                 this.errors.push({
                     property: property,
                     rule: error.rule,
@@ -75,16 +77,5 @@ export class ComposedValidationResult implements ValidationResult {
 
     public getErrors(): ValidationError[] {
         return this.errors
-    }
-
-    public getValidityByRule(key: string): any {
-        const validity: any = {}
-        for (let error of this.getErrors()) {
-            if (error.property === key) {
-                validity[error.rule] = false
-            }
-        }
-
-        return validity
     }
 }

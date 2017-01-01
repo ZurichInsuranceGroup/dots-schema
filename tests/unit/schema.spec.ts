@@ -35,8 +35,7 @@ describe('Schema', () => {
             allowed: 1
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(true)
-        expect(result.getErrors().length).to.equal(0)
+        expect(result).to.equal(null)
 
         result = schema.validate({
             string: 1,
@@ -84,7 +83,7 @@ describe('Schema', () => {
         }) as ValidationResult
 
         expect(object.string).to.equal(1)
-        expect(result.isValid()).to.equal(true)
+        expect(result).to.equal(null)
 
         // clean with mutate
         object = {
@@ -98,7 +97,7 @@ describe('Schema', () => {
         }) as ValidationResult
 
         expect(object.string).to.equal('1')
-        expect(result.isValid()).to.equal(true)
+        expect(result).to.equal(null)
 
         // disable clean
         object = {
@@ -282,49 +281,15 @@ describe('Schema', () => {
         expect(result.getErrors().length).to.equal(1)
     })
 
-    it('can get validity by rule', () => {
-        const schema = new Schema({
-            string: {
-                type: String
-            },
-            number: {
-                type: Number
-            },
-            date: {
-                type: Date
-            },
-            optional: {
-                type: String,
-                optional: true
-            },
-            allowed: {
-                type: Number,
-                allowedValues: [1, 2, 3]
-            }
-        })
-
-        let result = schema.validate({
-            string: 1,
-            number: 'test',
-            date: false,
-            optional: 5,
-            allowed: 4
-        }, 'string') as ValidationResult
-
-        expect(result.isValid()).to.equal(false)
-
-        const validity = result.getValidityByRule('string')
-        expect(validity.hasOwnProperty('type')).to.equal(true)
-        expect(validity.type).to.equal(false)
-    })
-
     it('can create a set of validators', () => {
         const schema = new Schema({
             string: {
-                type: String
+                type: String,
+                max: 5
             },
             number: {
-                type: Number
+                type: Number,
+                min: 3
             },
             date: {
                 type: Date
@@ -342,10 +307,11 @@ describe('Schema', () => {
         const validators = schema.getValidators()
 
         expect(Object.keys(validators).length).to.equal(5)
-        expect(Object.keys(validators.string).length).to.equal(2)
+        expect(Object.keys(validators.string).length).to.equal(3)
 
         expect(validators.string.type).to.be.a('function')
         expect(validators.string.required).to.be.a('function')
+        expect(validators.string.max).to.be.a('function')
 
         expect(validators.number.type).to.be.a('function')
         expect(validators.number.required).to.be.a('function')
@@ -363,7 +329,7 @@ describe('Schema', () => {
 
         const fieldValidators = schema.getValidators('string')
 
-        expect(Object.keys(fieldValidators).length).to.equal(2)
+        expect(Object.keys(fieldValidators).length).to.equal(3)
         expect(fieldValidators.type).to.be.a('function')
         expect(fieldValidators.required).to.be.a('function')
     })

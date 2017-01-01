@@ -21,7 +21,7 @@ describe('DateValidator', () => {
             date: new Date()
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(true)
+        expect(result).to.equal(null)
 
         result = schema.validate({
             date: 'test'

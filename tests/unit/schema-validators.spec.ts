@@ -24,7 +24,7 @@ describe('SchemaValidator', () => {
             }
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(true)
+        expect(result).to.equal(null)
 
         result = schema.validate({
             sub: {}

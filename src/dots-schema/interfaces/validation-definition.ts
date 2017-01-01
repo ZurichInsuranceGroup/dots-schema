@@ -8,6 +8,8 @@ export interface ValidationDefinition {
 
     label?: String
 
+    collectionType?: false | Array<any> | Map<any, any> | Set<any> | WeakMap<any, any> | WeakSet<any>
+
     array?: boolean
 
     minCount?: Number

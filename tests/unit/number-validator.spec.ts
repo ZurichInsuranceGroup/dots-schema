@@ -31,7 +31,7 @@ describe('NumberValidator', () => {
             number: 1
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(true)
+        expect(result).to.equal(null)
 
         result = schema.validate({
             number: -1

@@ -89,6 +89,50 @@ export class RootValidator implements Validator {
         }
     }
 
+    // for the type rule, the value is valid if at least one type is valid
+    private static createTypeValidator(key: string, types: Function[], validatorsByType: any) {
+        return (value: any, object?: any, options?: ValidationOptions) => {
+            for (let type of types) {
+                const validator = validatorsByType[type.name].type
+                if (validator(value, object, options) === null) {
+                    return null
+                }
+            }
+            return {
+                property: key,
+                rule: 'type',
+                message: `Property ${key} must be one of [${Object.keys(validatorsByType).join(', ')}]`
+            }
+        }
+    }
+
+    // every other rule gets passed down to every typeValidator that supports the rule
+    private static createRuleValidator(rule: string, types: Function[], validatorsByType: any) {
+        return (value: any, object?: any, options?: ValidationOptions) => {
+            for (let type of types) {
+                const validator = validatorsByType[type.name][rule]
+
+                if (typeof validator === 'function') {
+                    return validator(value, object, options)
+                }
+            }
+            return null
+        }
+    }
+
+    private static createArrayValidator(validator: (value: any, object?: any, options?: ValidationOptions) => any, key: string) {
+        return (value: any, object?: any, options?: ValidationOptions) => {
+            if (_.isArray(value)) {
+                const result = new ComposedValidationResult()
+                for (let index = 0; index < value.length; index++) {
+                    result.and(validator(value[index], object, options), null, index)
+                }
+                return result
+            }
+            return null
+        }
+    }
+
     public static getValidatorsForKey(key: string, definition: ValidationDefinition, options: ValidationOptions, object?: any) {
         const validators: any = {}
 
@@ -104,11 +148,11 @@ export class RootValidator implements Validator {
             validators.isArray = cleaned(RootValidator.RULES.isArray, key, definition, options)
         }
 
-        if (definition.minCount) {
+        if (typeof definition.minCount !== 'undefined') {
             validators.minCount = cleaned(RootValidator.RULES.minCount, key, definition, options)
         }
 
-        if (definition.maxCount) {
+        if (typeof definition.maxCount !== 'undefined') {
             validators.maxCount = cleaned(RootValidator.RULES.maxCount, key, definition, options)
         }
 
@@ -124,33 +168,36 @@ export class RootValidator implements Validator {
             }
         }
 
-        switch (definition.type) {
-        case Boolean:
-            _.assign(validators, BooleanValidator.getValidatorsForKey(key, definition, options, object))
-            break
-        case Date:
-            _.assign(validators, DateValidator.getValidatorsForKey(key, definition, options, object))
-            break
-        case Number:
-            _.assign(validators, NumberValidator.getValidatorsForKey(key, definition, options, object))
-            break
-        case Object:
-            _.assign(validators, ObjectValidator.getValidatorsForKey(key, definition, options, object))
-            break
-        case String:
-            _.assign(validators, StringValidator.getValidatorsForKey(key, definition, options, object))
-            break
-        default:
-            if (definition.type instanceof Schema) {
-                _.assign(validators, SchemaValidator.getValidatorsForKey(key, definition, options, object))
-            } else {
-                throw new Error(`Unkown type ${definition.type} used in schema`)
+
+        const types = _.isArray<DefinitionType>(definition.type) ? definition.type : [definition.type]
+
+        const validatorsByType: any = {}
+        let rules: any[] = []
+
+        for (let type of types) {
+            const validators = this.getValidator(type).getValidatorsForKey(key, definition, options, object)
+            validatorsByType[type.name] = validators
+            rules = _.union(rules, Object.keys(validators))
+        }
+
+        if (definition.array) {
+            for (let rule of rules) {
+                validators[rule] = rule === 'type' ?
+                    RootValidator.createArrayValidator(RootValidator.createTypeValidator(key, types, validatorsByType), key) :
+                    RootValidator.createArrayValidator(RootValidator.createRuleValidator(rule, types, validatorsByType), key)
+            }
+        } else {
+            for (let rule of rules) {
+                validators[rule] = rule === 'type' ?
+                    RootValidator.createTypeValidator(key, types, validatorsByType) :
+                    RootValidator.createRuleValidator(rule, types, validatorsByType)
             }
         }
+
         return validators
     }
 
-    public static getValidator(type: DefinitionType): { new(...args: any[]): Validator } {
+    public static getValidator(type: DefinitionType): { getValidatorsForKey: (key: string, definition: ValidationDefinition, options: ValidationOptions, object: any) => any } {
         switch (type) {
             case String:
                 return StringValidator

@@ -25,9 +25,13 @@ export class SchemaValidator implements Validator {
             return null
         },
         schema: (value: any, key: string, definition: ValidationDefinition, options: ValidationOptions) => {
-            const schema: Schema = definition.type as Schema
-
-            return schema.validate(value, options)
+            if (value instanceof Schema || typeof value === 'object') {
+                const schema: Schema = definition.type as Schema
+                const result = new ComposedValidationResult()
+                result.and(schema.validate(value, options), key)
+                return result
+            }
+            return null
         }
     }
 

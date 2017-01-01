@@ -9,6 +9,7 @@ import {
 }  from '../interfaces'
 import { ComposedValidationResult } from '../composed-validation-result'
 import { cleaned } from '../cleaned'
+import { min, max } from './common-rules'
 
 export class NumberValidator implements Validator {
 
@@ -23,26 +24,8 @@ export class NumberValidator implements Validator {
             }
             return null
         },
-        min: (value: any, key: string, definition: ValidationDefinition) => {
-            if ((typeof value !== 'undefined' && value !== null) && (typeof definition.min === 'number') && value < definition.min) {
-                return {
-                    property: key,
-                    rule: 'min',
-                    message: `Property ${key} must be greater than ${definition.min}`
-                }
-            }
-            return null
-        },
-        max: (value: any, key: string, definition: ValidationDefinition) => {
-            if ((typeof value !== 'undefined' && value !== null) && (typeof definition.max === 'number') && value > definition.max) {
-                return {
-                    property: key,
-                    rule: 'max',
-                    message: `Property ${key} must be greater than ${definition.max}`
-                }
-            }
-            return null
-        }
+        min,
+        max
     }
 
     public static getValidatorsForKey(key: string, definition: ValidationDefinition, options: ValidationOptions, object?: any) {
@@ -50,12 +33,12 @@ export class NumberValidator implements Validator {
             type: cleaned(NumberValidator.RULES.type, key, definition, options)
         }
 
-        if (definition.min) {
-            _.assign(validators, cleaned(NumberValidator.RULES.min, key, definition, options))
+        if (typeof definition.min !== 'undefined') {
+            validators.min = cleaned(NumberValidator.RULES.min, key, definition, options)
         }
 
-        if (definition.max) {
-            _.assign(validators, cleaned(NumberValidator.RULES.max, key, definition, options))
+        if (typeof definition.max !== 'undefined') {
+            validators.max = cleaned(NumberValidator.RULES.max, key, definition, options)
         }
 
         return validators

@@ -10,6 +10,7 @@ import {
 }  from '../interfaces'
 import { ComposedValidationResult } from '../composed-validation-result'
 import { cleaned } from '../cleaned'
+import { min, max } from './common-rules'
 
 export class StringValidator implements Validator {
 
@@ -24,28 +25,8 @@ export class StringValidator implements Validator {
             }
             return null
         },
-        min: (value: any, key: string, definition: ValidationDefinition) => {
-            if ((typeof value !== 'undefined' && value !== null) && (typeof definition.min === 'number') && value.length < definition.min) {
-                return {
-                    property: key,
-                    rule: 'min',
-                    message: `Property ${key} must be shorter than ${definition.min}`
-                }
-            }
-            return null
-        },
-        max: (value: any, key: string, definition: ValidationDefinition) => {
-            if ((typeof value !== 'undefined' && value !== null) && (typeof definition.max === 'number') && value.length > definition.max) {
-                return {
-                    property: key,
-                    rule: 'max',
-                    message: `Property ${key} must be longer than ${definition.max}`
-                }
-            }
-            return null
-        },
         regEx: (value: any, key: string, definition: ValidationDefinition) => {
-            if ((typeof value !== 'undefined' && value !== null) && (definition.regEx instanceof RegExp) && !definition.regEx.test(value)) {
+            if (typeof value === 'string' && definition.regEx instanceof RegExp && !definition.regEx.test(value)) {
                 return {
                     property: key,
                     rule: 'regEx',
@@ -53,7 +34,9 @@ export class StringValidator implements Validator {
                 }
             }
             return null
-        }
+        },
+        min,
+        max
     }
 
     public static getValidatorsForKey(key: string, definition: ValidationDefinition, options: ValidationOptions, object?: any) {
@@ -61,16 +44,16 @@ export class StringValidator implements Validator {
             type: cleaned(StringValidator.RULES.type, key, definition, options)
         }
 
-        if (definition.min) {
-            _.assign(validators, cleaned(StringValidator.RULES.min, key, definition, options))
+        if (typeof definition.min !== 'undefined') {
+            validators.min = cleaned(StringValidator.RULES.min, key, definition, options)
         }
 
-        if (definition.max) {
-            _.assign(validators, cleaned(StringValidator.RULES.max, key, definition, options))
+        if (typeof definition.max !== 'undefined') {
+            validators.max = cleaned(StringValidator.RULES.max, key, definition, options)
         }
 
         if (definition.regEx) {
-            _.assign(validators, cleaned(StringValidator.RULES.regEx, key, definition, options))
+            validators.regEx = cleaned(StringValidator.RULES.regEx, key, definition, options)
         }
 
         return validators

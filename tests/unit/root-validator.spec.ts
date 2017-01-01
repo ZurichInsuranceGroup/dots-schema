@@ -51,7 +51,7 @@ describe('RootValidator', () => {
             allowed: 1
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(true)
+        expect(result).to.equal(null)
 
         result = schema.validate({
             allowed: 4
@@ -64,28 +64,30 @@ describe('RootValidator', () => {
     it('can validate union types', () => {
         const schema = new Schema({
             stringOrNumber: {
-                type: [String, Number]
+                type: [String, Number],
+                regEx: Schema.RegEx.Email,
+                min: 2
             }
         })
 
         let result = schema.validate({
-            stringOrNumber: 'test'
+            stringOrNumber: 'test@example.com'
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(true)
+        expect(result).to.equal(null)
 
         result = schema.validate({
-            stringOrNumber: 1
+            stringOrNumber: 2
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(true)
+        expect(result).to.equal(null)
 
         result = schema.validate({
             stringOrNumber: false
         }) as ValidationResult
 
         expect(result.isValid()).to.equal(false)
-        expect(result.getErrors().length).to.equal(2)
+        expect(result.getErrors().length).to.equal(1)
     })
 
     it('can validate an array', () => {
@@ -102,14 +104,15 @@ describe('RootValidator', () => {
             strings: ['1', '2']
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(true)
+        console.log(result)
+        expect(result).to.equal(null)
 
         result = schema.validate({
             strings: '1'
         }) as ValidationResult
 
         expect(result.isValid()).to.equal(false)
-        expect(result.getErrors().length).to.equal(1)
+        expect(result.getErrors().length).to.equal(2)
         expect(result.getErrors()[0].rule).to.equal('type')
 
         result = schema.validate({
