@@ -1,7 +1,6 @@
 import * as _ from 'lodash'
 
 import {
-    Validator,
     ValidationDefinition,
     DefinitionType,
     ValidationResult,
@@ -19,7 +18,7 @@ import { BooleanValidator } from './boolean-validator'
 import { Schema } from '../schema'
 import { cleaned } from '../cleaned'
 
-export class RootValidator implements Validator {
+export class RootValidator {
 
     public static RULES = {
         isArray: (value: any, key: string, definition: ValidationDefinition): ValidationError | null => {
@@ -197,7 +196,10 @@ export class RootValidator implements Validator {
         return validators
     }
 
-    public static getValidator(type: DefinitionType): { getValidatorsForKey: (key: string, definition: ValidationDefinition, options: ValidationOptions, object: any) => any } {
+    public static getValidator(type: DefinitionType): {
+            getValidatorsForKey: (key: string, definition: ValidationDefinition, options: ValidationOptions, object: any) => any,
+            clean: (definition: ValidationDefinition, value: any, options: CleanOptions, object: any) => any
+    } {
         switch (type) {
             case String:
                 return StringValidator
@@ -218,82 +220,7 @@ export class RootValidator implements Validator {
         }
     }
 
-    private getValidator(type: DefinitionType): Validator {
-        switch (type) {
-            case String:
-                return new StringValidator()
-            case Number:
-                return new NumberValidator()
-            case Date:
-                return new DateValidator()
-            case Object:
-                return new ObjectValidator()
-            case Boolean:
-                return new BooleanValidator()
-            default:
-                if (type instanceof Schema) {
-                    return new SchemaValidator()
-                } else {
-                    throw new Error(`Unkown type ${type} used in schema`)
-                }
-        }
-    }
-
-    private validateType(key: string, definition: ValidationDefinition, value: any, options: ValidationOptions): ValidationResult {
-        const result = new ComposedValidationResult()
-        const type: DefinitionType = definition.type
-        const rules = RootValidator.RULES
-
-        let validator: Validator = this.getValidator(type)
-
-        if (definition.array) {
-            result.and(rules.isArray(value, key, definition))
-
-            if (result.isValid()) {
-                result.and(rules.minCount(value, key, definition))
-                result.and(rules.maxCount(value, key, definition))
-
-                // use classic for loop here because we need the index
-                for (let index = 0; index < value.length; index++) {
-                    result.and(validator.validate(`${key}.${index}`, definition, value[index], options))
-                }
-
-            }
-        } else {
-            result.and(validator.validate(key, definition, value, options))
-        }
-
-        return result
-    }
-
-    public validate(key: string, definition: ValidationDefinition, value: any, options: ValidationOptions): ValidationResult {
-        const result = new ComposedValidationResult()
-        const rules = RootValidator.RULES
-
-        result.and(rules.required(value, key, definition))
-        if (!result.isValid() || (typeof value === 'undefined' || value == null)) {
-            return result
-        }
-
-        result.and(rules.allowedValues(value, key, definition))
-        if (!result.isValid()) {
-            return result
-        }
-
-        const types: DefinitionType[] = Array.isArray(definition.type) ? (definition.type as DefinitionType[]) : [definition.type as DefinitionType]
-
-        for (let type of types) {
-            const singleDefinition = { type }
-            _.defaults(singleDefinition, definition)
-            result.or(this.validateType(key, singleDefinition, value, options))
-
-            if (result.isValid()) { break }
-        }
-
-        return result
-    }
-
-    public clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any {
+    public static clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any {
         let result: any = value
 
         if (options.removeEmptyStrings && typeof result === 'string' && value.trim().length === 0) {
@@ -318,7 +245,7 @@ export class RootValidator implements Validator {
         }
 
         for (let type of _.reverse(types) as DefinitionType[]) {
-            result = this.getValidator(type).clean(definition, result, options, object)
+            result = RootValidator.getValidator(type).clean(definition, result, options, object)
         }
 
         return result

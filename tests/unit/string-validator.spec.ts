@@ -27,7 +27,7 @@ describe('StringValidator', () => {
             string: 1
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(1)
 
         let error = result.getErrors()[0]
@@ -39,7 +39,7 @@ describe('StringValidator', () => {
             string: ''
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(1)
         expect(result.getErrors()[0].rule).to.equal('min')
         expect(result.getErrors()[0].property).to.equal('string')
@@ -48,7 +48,7 @@ describe('StringValidator', () => {
             string: '1234'
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(1)
         expect(result.getErrors()[0].rule).to.equal('max')
         expect(result.getErrors()[0].property).to.equal('string')
@@ -72,7 +72,7 @@ describe('StringValidator', () => {
             string: 'testexample.com'
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(1)
         expect(result.getErrors()[0].rule).to.equal('regEx')
         expect(result.getErrors()[0].property).to.equal('string')

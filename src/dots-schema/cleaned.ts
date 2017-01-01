@@ -13,7 +13,6 @@ import { RootValidator } from './validators/root-validator'
 import { Schema } from './schema'
 
 export function cleaned(validator: any, key: string, definition: ValidationDefinition, options: ValidationOptions, defaultObject?: any, custom?: Function, rule?: string): Function {
-    const rootValidator = new RootValidator()
     const defaultOptions = options
     const defaultCleanOptions = typeof options.clean === 'object' ? _.defaults({}, options.clean, Schema.DefaultCleanOptions) : _.defaults({}, Schema.DefaultCleanOptions)
 
@@ -25,7 +24,7 @@ export function cleaned(validator: any, key: string, definition: ValidationDefin
 
         if (options.clean) {
             const cleanOptions = options.clean === 'object' ? _.assign({}, defaultCleanOptions, options.clean) : _.assign({}, defaultCleanOptions)
-            value = rootValidator.clean(definition, value, cleanOptions, object)
+            value = RootValidator.clean(definition, value, cleanOptions, object)
         }
 
         return validator(value, key, definition, object, options, custom, rule)

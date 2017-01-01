@@ -26,7 +26,7 @@ describe('RootValidator', () => {
 
         let result = schema.validate({}) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(3)
 
         const stringValidator = schema.getValidators('string', null, { clean: true })
@@ -57,7 +57,7 @@ describe('RootValidator', () => {
             allowed: 4
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(1)
     })
 
@@ -86,7 +86,7 @@ describe('RootValidator', () => {
             stringOrNumber: false
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(1)
     })
 
@@ -104,14 +104,13 @@ describe('RootValidator', () => {
             strings: ['1', '2']
         }) as ValidationResult
 
-        console.log(result)
         expect(result).to.equal(null)
 
         result = schema.validate({
             strings: '1'
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(2)
         expect(result.getErrors()[0].rule).to.equal('type')
 
@@ -119,7 +118,7 @@ describe('RootValidator', () => {
             strings: ['1']
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(1)
         expect(result.getErrors()[0].rule).to.equal('minCount')
 
@@ -127,7 +126,7 @@ describe('RootValidator', () => {
             strings: ['1', '2', '3', '4', '5']
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(1)
         expect(result.getErrors()[0].rule).to.equal('maxCount')
 
@@ -135,7 +134,7 @@ describe('RootValidator', () => {
             strings: ['1', 3, '3', false]
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(2)
         expect(result.getErrors()[0].rule).to.equal('type')
         expect(result.getErrors()[0].property).to.equal('strings.1')

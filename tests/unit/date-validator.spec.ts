@@ -27,7 +27,7 @@ describe('DateValidator', () => {
             date: 'test'
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(1)
 
         let error = result.getErrors()[0]

@@ -19,7 +19,7 @@ describe('NumberValidator', () => {
             number: 'test'
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(1)
 
         let error = result.getErrors()[0]
@@ -37,7 +37,7 @@ describe('NumberValidator', () => {
             number: -1
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(1)
         expect(result.getErrors()[0].rule).to.equal('min')
         expect(result.getErrors()[0].property).to.equal('number')
@@ -46,7 +46,7 @@ describe('NumberValidator', () => {
             number: 6
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(1)
         expect(result.getErrors()[0].rule).to.equal('max')
         expect(result.getErrors()[0].property).to.equal('number')

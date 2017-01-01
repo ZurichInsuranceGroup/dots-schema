@@ -39,48 +39,11 @@ export class Schema {
         _.defaults(options, Schema.DefaultOptions)
     }
 
-    private validateKey(value: any, key: string, object: any, options: ValidationOptions): ValidationResult {
-        const rootValidator = new RootValidator()
-        const definition: ValidationDefinition = this.schema[key] as ValidationDefinition
-
-        if (definition.type instanceof Function || definition.type instanceof Schema || _.isObject(definition.type)) {
-            const result = rootValidator.validate(key, definition, value, options) as ComposedValidationResult
-            if (typeof definition.custom === 'function') {
-                let custom = definition.custom(value, object, options.context)
-                if (custom) {
-                    result.and({
-                        property: key,
-                        rule: 'custom',
-                        message: custom
-                    })
-                }
-            } else if (typeof definition.custom === 'object') {
-                for (let rule in definition.custom) {
-                    if (definition.custom.hasOwnProperty(rule)) {
-                        let custom = definition.custom[rule](value, object, options.context)
-                        if (custom) {
-                            result.and({
-                                property: key,
-                                rule: rule,
-                                message: custom
-                            })
-                        }
-                    }
-                }
-            }
-            return result
-        } else {
-            throw new Error(`Invalid type '${definition.type}' used in ${this.name}`)
-        }
-
-    }
-
     private cleanKey(key: string, object: any, options: CleanOptions = {}) {
-        const rootValidator = new RootValidator()
         const definition: ValidationDefinition = this.schema[key] as ValidationDefinition
 
         if (definition.type instanceof Function || definition.type instanceof Schema || _.isObject(definition.type)) {
-            return rootValidator.clean(definition, object[key], options, object)
+            return RootValidator.clean(definition, object[key], options, object)
         } else {
             throw new Error(`Invalid type '${definition.type}' used in ${this.name}`)
         }
@@ -94,16 +57,14 @@ export class Schema {
                 const cleanOptions = _.defaults({}, options.clean, Schema.DefaultCleanOptions)
                 object = this.clean(object, cleanOptions)
             }
-            const result = validator(object, options)
-            return result.isValid() ? null : result
+            return validator(object, options)
         } else {
             const validator = this.getValidator(object, options)
             if (options.clean) {
                 const cleanOptions = _.defaults({}, options.clean, Schema.DefaultCleanOptions)
                 object = this.clean(object, cleanOptions)
             }
-            const result = validator(object, options)
-            return result.isValid() ? null : result
+            return validator(object, options)
         }
     }
 
@@ -178,7 +139,7 @@ export class Schema {
                     }
                 }
             }
-            return result
+            return result.isValid() ? null : result
         }
     }
 
@@ -209,7 +170,7 @@ export class Schema {
                     }
                 }
             }
-            return result
+            return result.isValid() ? null : result
         }
     }
 

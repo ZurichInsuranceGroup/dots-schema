@@ -1,7 +1,6 @@
 import * as _ from 'lodash'
 
 import {
-    Validator,
     ValidationDefinition,
     ValidationResult,
     ValidationOptions,
@@ -11,7 +10,7 @@ import { ComposedValidationResult } from '../composed-validation-result'
 import { Schema } from '../schema'
 import { cleaned } from '../cleaned'
 
-export class SchemaValidator implements Validator {
+export class SchemaValidator {
 
     public static RULES = {
         type: (value: any, key: string, definition: ValidationDefinition) => {
@@ -42,20 +41,7 @@ export class SchemaValidator implements Validator {
         }
     }
 
-    validate(key: string, definition: ValidationDefinition, value: any, options: ValidationOptions): ValidationResult {
-        const result = new ComposedValidationResult()
-        const rules = SchemaValidator.RULES
-
-        result.and(rules.type(value, key, definition))
-
-        if (result.isValid()) {
-            result.and(rules.schema(value, key, definition, options), key)
-        }
-
-        return result
-    }
-
-    clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any {
+    public static clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any {
         const schema: Schema = definition.type as Schema
         return schema.clean(value, options)
     }

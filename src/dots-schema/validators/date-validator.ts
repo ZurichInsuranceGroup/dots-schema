@@ -2,7 +2,6 @@ import * as moment from 'moment'
 import * as _ from 'lodash'
 
 import {
-    Validator,
     ValidationDefinition,
     ValidationResult,
     ValidationOptions,
@@ -11,7 +10,7 @@ import {
 import { ComposedValidationResult } from '../composed-validation-result'
 import { cleaned } from '../cleaned'
 
-export class DateValidator implements Validator {
+export class DateValidator {
 
      public static RULES = {
         type: (value: any, key: string, definition: ValidationDefinition) => {
@@ -62,20 +61,7 @@ export class DateValidator implements Validator {
         return validators
     }
 
-    validate(key: string, definition: ValidationDefinition, value: any, options: ValidationOptions): ValidationResult {
-        const result = new ComposedValidationResult()
-        const rules = DateValidator.RULES
-
-        result.and(rules.type(value, key, definition))
-        if (result.isValid()) {
-            result.and(rules.before(value, key, definition))
-            result.and(rules.after(value, key, definition))
-        }
-
-        return result
-    }
-
-    clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any {
+    public static clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any {
         if (!options.autoConvert) {
             return value
         }

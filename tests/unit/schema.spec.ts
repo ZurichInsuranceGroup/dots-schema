@@ -45,7 +45,7 @@ describe('Schema', () => {
             allowed: 4
         }) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(5)
     })
 
@@ -109,7 +109,7 @@ describe('Schema', () => {
         }) as ValidationResult
 
         expect(object.string).to.equal(1)
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
     })
 
     it('can use custom validators', () => {
@@ -131,7 +131,7 @@ describe('Schema', () => {
 
         let result = schema.validate(object) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(1)
         expect(result.getErrors()[0].rule).to.equal('custom')
         expect(result.getErrors()[0].property).to.equal('something')
@@ -154,7 +154,7 @@ describe('Schema', () => {
 
         result = parentSchema.validate(parent) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(1)
         expect(result.getErrors()[0].property).to.equal('child.something')
 
@@ -187,7 +187,7 @@ describe('Schema', () => {
 
         let result = schema.validate(object) as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(2)
         expect(result.getErrors()[0].rule).to.equal('custom1')
         expect(result.getErrors()[0].property).to.equal('something')
@@ -277,7 +277,7 @@ describe('Schema', () => {
             allowed: 4
         }, 'string') as ValidationResult
 
-        expect(result.isValid()).to.equal(false)
+        expect(result).not.to.equal(null)
         expect(result.getErrors().length).to.equal(1)
     })
 
