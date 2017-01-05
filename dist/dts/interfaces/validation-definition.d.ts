@@ -1,3 +1,4 @@
+/// <reference types="lodash" />
 import { Schema } from '../schema';
 export declare type DefinitionType = {
     new (...args: any[]): any;
@@ -5,6 +6,7 @@ export declare type DefinitionType = {
 export interface ValidationDefinition {
     type: DefinitionType | DefinitionType[];
     label?: String;
+    collectionType?: false | Array<any> | Map<any, any> | Set<any> | WeakMap<any, any> | WeakSet<any>;
     array?: boolean;
     minCount?: Number;
     maxCount?: Number;

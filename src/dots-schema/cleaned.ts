@@ -1,7 +1,6 @@
 import * as _ from 'lodash'
 
 import {
-    Validator,
     ValidationDefinition,
     DefinitionType,
     ValidationResult,

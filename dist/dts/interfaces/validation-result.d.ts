@@ -1,6 +1,5 @@
 import { ValidationError } from './validation-error';
 export interface ValidationResult {
-    isValid(): Boolean;
+    isValid(): boolean;
     getErrors(): ValidationError[];
-    getValidityByRule(key: string): any;
 }

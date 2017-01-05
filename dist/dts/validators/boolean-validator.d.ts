@@ -1,5 +1,5 @@
-import { Validator, ValidationDefinition, ValidationResult, ValidationOptions, CleanOptions } from '../interfaces';
-export declare class BooleanValidator implements Validator {
+import { ValidationDefinition, ValidationOptions, CleanOptions } from '../interfaces';
+export declare class BooleanValidator {
     static RULES: {
         type: (value: any, key: string, definition: ValidationDefinition) => {
             property: string;
@@ -10,6 +10,5 @@ export declare class BooleanValidator implements Validator {
     static getValidatorsForKey(key: string, definition: ValidationDefinition, options: ValidationOptions, object?: any): {
         type: Function;
     };
-    validate(key: string, definition: ValidationDefinition, value: any, options: ValidationOptions): ValidationResult;
-    clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any;
+    static clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any;
 }

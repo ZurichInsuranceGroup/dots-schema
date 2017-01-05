@@ -1,5 +1,5 @@
-import { Validator, ValidationDefinition, ValidationResult, ValidationOptions, CleanOptions } from '../interfaces';
-export declare class DateValidator implements Validator {
+import { ValidationDefinition, ValidationOptions, CleanOptions } from '../interfaces';
+export declare class DateValidator {
     static RULES: {
         type: (value: any, key: string, definition: ValidationDefinition) => {
             property: string;
@@ -18,6 +18,5 @@ export declare class DateValidator implements Validator {
         } | null;
     };
     static getValidatorsForKey(key: string, definition: ValidationDefinition, options: ValidationOptions, object?: any): any;
-    validate(key: string, definition: ValidationDefinition, value: any, options: ValidationOptions): ValidationResult;
-    clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any;
+    static clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any;
 }

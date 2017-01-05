@@ -4,6 +4,7 @@ import * as _ from 'lodash'
 import {
     ValidationDefinition,
     ValidationResult,
+    ValidationError,
     ValidationOptions,
     CleanOptions
 }  from '../interfaces'

@@ -1,5 +1,5 @@
-import { Validator, ValidationDefinition, DefinitionType, ValidationResult, ValidationOptions, ValidationError, CleanOptions } from '../interfaces';
-export declare class RootValidator implements Validator {
+import { ValidationDefinition, DefinitionType, ValidationOptions, ValidationError, CleanOptions } from '../interfaces';
+export declare class RootValidator {
     static RULES: {
         isArray: (value: any, key: string, definition: ValidationDefinition) => ValidationError | null;
         minCount: (value: any, key: string, definition: ValidationDefinition) => ValidationError | null;
@@ -8,12 +8,13 @@ export declare class RootValidator implements Validator {
         allowedValues: (value: any, key: string, definition: ValidationDefinition) => ValidationError | null;
         custom: (value: any, key: string, defintion: ValidationDefinition, object: any, options: ValidationOptions, custom: Function, rule: string) => ValidationError | null;
     };
+    private static createTypeValidator(key, types, validatorsByType);
+    private static createRuleValidator(rule, types, validatorsByType);
+    private static createArrayValidator(validator, key);
     static getValidatorsForKey(key: string, definition: ValidationDefinition, options: ValidationOptions, object?: any): any;
     static getValidator(type: DefinitionType): {
-        new (...args: any[]): Validator;
+        getValidatorsForKey: (key: string, definition: ValidationDefinition, options: ValidationOptions, object: any) => any;
+        clean: (definition: ValidationDefinition, value: any, options: CleanOptions, object: any) => any;
     };
-    private getValidator(type);
-    private validateType(key, definition, value, options);
-    validate(key: string, definition: ValidationDefinition, value: any, options: ValidationOptions): ValidationResult;
-    clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any;
+    static clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any;
 }

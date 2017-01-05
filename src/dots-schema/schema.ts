@@ -50,8 +50,9 @@ export class Schema {
     }
 
     public validate(object: any, key?: string | ValidationOptions, options?: ValidationOptions): ValidationResult | null {
-        options = _.defaults(key || {}, Schema.DefaultOptions)
         if (typeof key === 'string') {
+            options = _.defaults({}, options, Schema.DefaultOptions)
+
             const validator = this.getValidator(key, object, options)
             if (options.clean) {
                 const cleanOptions = _.defaults({}, options.clean, Schema.DefaultCleanOptions)
@@ -59,6 +60,8 @@ export class Schema {
             }
             return validator(object, options)
         } else {
+            options = _.defaults({}, key, Schema.DefaultOptions)
+
             const validator = this.getValidator(object, options)
             if (options.clean) {
                 const cleanOptions = _.defaults({}, options.clean, Schema.DefaultCleanOptions)
