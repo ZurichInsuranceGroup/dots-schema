@@ -121,6 +121,7 @@ export class Schema {
         const validators = this.getValidators(object, options)
 
         return (value: any, object?: any, options?: ValidationOptions) => {
+            object = object ? object : value
             const result = new ComposedValidationResult()
             if (validators.hasOwnProperty(property)) {
                 const propertyValidators = validators[property]
@@ -150,6 +151,7 @@ export class Schema {
         const validators = this.getValidators(object, options)
 
         return (value: any, object?: any, options?: ValidationOptions) => {
+            object = object ? object : value
             const result = new ComposedValidationResult()
             for (let property in validators) {
                 if (validators.hasOwnProperty(property)) {
