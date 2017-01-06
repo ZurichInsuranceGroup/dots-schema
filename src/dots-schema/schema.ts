@@ -58,7 +58,7 @@ export class Schema {
                 const cleanOptions = _.defaults({}, options.clean, Schema.DefaultCleanOptions)
                 object = this.clean(object, cleanOptions)
             }
-            return validator(object, options)
+            return validator(object, object, options)
         } else {
             options = _.defaults({}, key, Schema.DefaultOptions)
 
@@ -67,7 +67,7 @@ export class Schema {
                 const cleanOptions = _.defaults({}, options.clean, Schema.DefaultCleanOptions)
                 object = this.clean(object, cleanOptions)
             }
-            return validator(object, options)
+            return validator(object, object, options)
         }
     }
 
@@ -121,7 +121,6 @@ export class Schema {
         const validators = this.getValidators(object, options)
 
         return (value: any, object?: any, options?: ValidationOptions) => {
-            object = object ? object : value
             const result = new ComposedValidationResult()
             if (validators.hasOwnProperty(property)) {
                 const propertyValidators = validators[property]
@@ -151,7 +150,6 @@ export class Schema {
         const validators = this.getValidators(object, options)
 
         return (value: any, object?: any, options?: ValidationOptions) => {
-            object = object ? object : value
             const result = new ComposedValidationResult()
             for (let property in validators) {
                 if (validators.hasOwnProperty(property)) {

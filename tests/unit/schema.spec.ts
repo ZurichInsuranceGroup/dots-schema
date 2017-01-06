@@ -121,10 +121,10 @@ describe('Schema', () => {
             something: {
                 type: String,
                 custom: (value: any, object: any, context: any) => {
-                    expect(value).to.equal('yo')
-                    expect(object).to.equal(object)
-                    expect(_.isEmpty(context)).to.equal(true)
-                    return 'not valid'
+                    if (object.something === 'yo') {
+                        return 'not valid'
+                    }
+                    return null
                 }
             }
         })
