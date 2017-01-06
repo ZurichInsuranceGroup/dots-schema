@@ -1,6 +1,6 @@
 {
   "name": "dots-schema",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "Provides a Schema Class for advanced object validation",
   "main": "dist/es5/index.js",
   "private": true,

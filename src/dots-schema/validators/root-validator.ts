@@ -64,7 +64,7 @@ export class RootValidator {
         },
         allowedValues: (value: any, key: string, definition: ValidationDefinition): ValidationError | null => {
             if ((typeof value !== 'undefined' && value !== null) && typeof definition.allowedValues !== 'undefined') {
-                if (!(value in definition.allowedValues)) {
+                if (definition.allowedValues.indexOf(value) === -1) {
                     return {
                         property: key,
                         rule: 'allowedValues',
