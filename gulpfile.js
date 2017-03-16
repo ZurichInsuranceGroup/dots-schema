@@ -14,22 +14,24 @@ const
     nodeResolve = require('rollup-plugin-node-resolve')
     commonjs = require('rollup-plugin-commonjs')
 
+const env = process.env.NODE_ENV || 'development'
+
 const moduleName = 'dots-schema',
     sourceFolder = 'src',
-    distFolder = 'dist',
+    buildFolder = env !== 'production' ? 'build' : 'dist',
     testsFolder = 'tests'
 
 const config = {
     moduleName: moduleName,
     sourceFolder: sourceFolder,
-    distFolder: distFolder,
+    buildFolder: buildFolder,
     testsFolder: testsFolder,
     files: [
         `${sourceFolder}/${moduleName}/**/*.ts`
     ],
     production: {
-        main: 'dist/es6/index.js',
-        bundle: 'dist/',
+        main: `${buildFolder}/es6/index.js`,
+        bundle: buildFolder,
         tsConfig: {
             isolatedModules: false,
             declaration: true,
@@ -37,8 +39,8 @@ const config = {
         },
     },
     development: {
-        main: 'dist/dots-schema/index.js',
-        bundle: 'dist/dots-schema/',
+        main: `${buildFolder}/dots-schema/index.js`,
+        bundle: `${buildFolder}/dots-schema/`,
         tsConfig: {
             isolatedModules: true,
             module: 'es2015'
@@ -52,14 +54,13 @@ const config = {
         files: [
             `${sourceFolder}/${testsFolder}/**/*.ts`
         ],
-        dest: `${distFolder}/${testsFolder}`
+        dest: `${buildFolder}/${testsFolder}`
     }
 }
 
-const env = process.env.NODE_ENV || 'development'
 
 gulp.task('clean', (callback) => {
-    return del(['dist'], callback)
+    return del([buildFolder], callback)
 })
 
 gulp.task('build:tests', () => {
@@ -84,7 +85,7 @@ gulp.task('build:development', () => {
     return tsResult.js
         .pipe(plumber())
         .pipe(sourcemaps.write())
-        .pipe(gulp.dest(`${config.distFolder}/${moduleName}`))
+        .pipe(gulp.dest(`${config.buildFolder}/${moduleName}`))
 })
 
 gulp.task('build:production', () => {
@@ -97,11 +98,11 @@ gulp.task('build:production', () => {
         tsResult.js
             .pipe(plumber())
             .pipe(sourcemaps.write())
-            .pipe(gulp.dest(`${config.distFolder}/es6`)),
+            .pipe(gulp.dest(`${config.buildFolder}/es6`)),
         tsResult.dts
             .pipe(plumber())
             .pipe(sourcemaps.write())
-            .pipe(gulp.dest(`${config.distFolder}/dts`))
+            .pipe(gulp.dest(`${config.buildFolder}/dts`))
     ])
 })
 
@@ -131,11 +132,11 @@ gulp.task('build:dts', () => {
         .pipe(tsProject())
     return tsResult.dts
             .pipe(plumber())
-            .pipe(gulp.dest(config.distFolder))
+            .pipe(gulp.dest(config.buildFolder))
 })
 
 gulp.task('start:tests', () => {
-    return gulp.src(`${config.distFolder}/${config.testsFolder}/**/*.js`)
+    return gulp.src(`${config.buildFolder}/${config.testsFolder}/**/*.js`)
         .pipe(plumber())
         .pipe(gulpMocha({ reporter: 'spec' }))
 })
