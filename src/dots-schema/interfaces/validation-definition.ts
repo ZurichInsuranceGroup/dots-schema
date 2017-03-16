@@ -8,7 +8,7 @@ export interface ValidationDefinition {
 
     label?: String
 
-    collectionType?: false | Array<any> | Map<any, any> | Set<any> | WeakMap<any, any> | WeakSet<any>
+    collectionType?: false | Array<any> | Map<any, any> | Set<any> | WeakSet<any>
 
     array?: boolean
 
