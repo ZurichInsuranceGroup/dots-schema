@@ -1,10 +1,9 @@
-import * as _ from 'lodash'
+import toLower from 'lodash.tolower'
 
 import {
     ValidationDefinition,
     ValidationResult,
     ValidationOptions,
-    CleanOptions
 }  from '../interfaces'
 import { ComposedValidationResult } from '../composed-validation-result'
 import { cleaned } from '../cleaned'
@@ -30,12 +29,12 @@ export class BooleanValidator {
         }
     }
 
-    public static clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any {
-        if (!options.autoConvert || typeof value === 'undefined') {
+    public static clean(definition: ValidationDefinition, value: any, options: ValidationOptions, object: any): any {
+        if (!options.castTypes || typeof value === 'undefined') {
             return value
         }
         if (typeof value === 'string') {
-            if (_.toLower(value) === 'false') {
+            if (toLower(value) === 'false') {
                 return false
             }
         } else if (value) {

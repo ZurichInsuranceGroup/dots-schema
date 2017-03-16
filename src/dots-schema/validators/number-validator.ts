@@ -1,11 +1,10 @@
-import * as _ from 'lodash'
+import isNaN from 'lodash.isnan'
 
 import {
     ValidationDefinition,
     ValidationResult,
     ValidationError,
-    ValidationOptions,
-    CleanOptions
+    ValidationOptions
 }  from '../interfaces'
 import { ComposedValidationResult } from '../composed-validation-result'
 import { cleaned } from '../cleaned'
@@ -44,14 +43,14 @@ export class NumberValidator {
         return validators
     }
 
-    public static clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any {
-        if (!options.autoConvert) {
+    public static clean(definition: ValidationDefinition, value: any, options: ValidationOptions, object: any): any {
+        if (!options.castTypes) {
             return value
         }
         if (typeof value === 'string') {
             let result: number = parseFloat(value)
 
-            if (_.isNaN(result)) {
+            if (isNaN(result)) {
                 return value
             }
 

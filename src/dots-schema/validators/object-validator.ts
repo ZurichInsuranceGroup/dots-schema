@@ -1,10 +1,8 @@
-import * as _ from 'lodash'
 
 import {
     ValidationDefinition,
     ValidationResult,
-    ValidationOptions,
-    CleanOptions
+    ValidationOptions
 }  from '../interfaces'
 import { ComposedValidationResult } from '../composed-validation-result'
 import { cleaned } from '../cleaned'
@@ -30,7 +28,7 @@ export class ObjectValidator  {
         }
     }
 
-    public static clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): void {
+    public static clean(definition: ValidationDefinition, value: any, options: ValidationOptions, object: any): void {
         return value
     }
 

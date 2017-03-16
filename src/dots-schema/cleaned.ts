@@ -1,29 +1,27 @@
-import * as _ from 'lodash'
+import assign from 'lodash.assign'
+import partialRight from 'lodash.partialright'
+import defaults from 'lodash.defaults'
 
 import {
     ValidationDefinition,
     DefinitionType,
     ValidationResult,
     ValidationOptions,
-    ValidationError,
-    CleanOptions
+    ValidationError
 } from './interfaces'
 import { RootValidator } from './validators/root-validator'
 import { Schema } from './schema'
 
 export function cleaned(validator: any, key: string, definition: ValidationDefinition, options: ValidationOptions, defaultObject?: any, custom?: Function, rule?: string): Function {
     const defaultOptions = options
-    const defaultCleanOptions = typeof options.clean === 'object' ? _.defaults({}, options.clean, Schema.DefaultCleanOptions) : _.defaults({}, Schema.DefaultCleanOptions)
 
     return (value: any, object?: any, options?: ValidationOptions) => {
-        let cleanOptions = defaultCleanOptions
-        options = _.assign({}, defaultOptions, options)
+        options = assign({}, defaultOptions, options)
 
         object = typeof object !== 'undefined' ? object : defaultObject
 
-        if (options.clean) {
-            const cleanOptions = options.clean === 'object' ? _.assign({}, defaultCleanOptions, options.clean) : _.assign({}, defaultCleanOptions)
-            value = RootValidator.clean(definition, value, cleanOptions, object)
+        if (options && options.autoClean) {
+            value = RootValidator.clean(definition, value, options, object)
         }
 
         return validator(value, key, definition, object, options, custom, rule)
@@ -40,7 +38,7 @@ const connectSchema = (schema: Schema, object: any, context: any): any => {
             const fieldConnected: any = {}
             for (let rule in fieldValidators) {
                 if (fieldValidators.hasOwnProperty(rule)) {
-                    fieldConnected[rule] = _.partialRight(fieldValidators[rule], object, {
+                    fieldConnected[rule] = partialRight(fieldValidators[rule], object, {
                         context: context,
                         clean: true
                     })

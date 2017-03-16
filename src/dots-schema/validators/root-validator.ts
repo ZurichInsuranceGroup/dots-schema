@@ -1,12 +1,16 @@
-import * as _ from 'lodash'
+import isArray from 'lodash.isarray'
+import union from 'lodash.union'
+import isEmpty from 'lodash.isempty'
+import isDate from 'lodash.isdate'
+import reverse from 'lodash.reverse'
+import cloneDeep from 'lodash.clonedeep'
 
 import {
     ValidationDefinition,
     DefinitionType,
     ValidationResult,
     ValidationOptions,
-    ValidationError,
-    CleanOptions
+    ValidationError
 } from '../interfaces'
 import { ComposedValidationResult } from '../composed-validation-result'
 import { StringValidator } from './string-validator'
@@ -92,7 +96,7 @@ export class RootValidator {
     private static createTypeValidator(key: string, types: Function[], validatorsByType: any) {
         return (value: any, object?: any, options?: ValidationOptions) => {
             for (let type of types) {
-                const validator = validatorsByType[type.name].type
+                const validator = validatorsByType[(type as any).name].type
                 if (validator(value, object, options) === null) {
                     return null
                 }
@@ -109,7 +113,7 @@ export class RootValidator {
     private static createRuleValidator(rule: string, types: Function[], validatorsByType: any) {
         return (value: any, object?: any, options?: ValidationOptions) => {
             for (let type of types) {
-                const validator = validatorsByType[type.name][rule]
+                const validator = validatorsByType[(type as any).name][rule]
 
                 if (typeof validator === 'function') {
                     return validator(value, object, options)
@@ -121,7 +125,7 @@ export class RootValidator {
 
     private static createArrayValidator(validator: (value: any, object?: any, options?: ValidationOptions) => any, key: string) {
         return (value: any, object?: any, options?: ValidationOptions) => {
-            if (_.isArray(value)) {
+            if (isArray(value)) {
                 const result = new ComposedValidationResult()
                 for (let index = 0; index < value.length; index++) {
                     result.and(validator(value[index], object, options), null, index)
@@ -168,7 +172,7 @@ export class RootValidator {
         }
 
 
-        const types = _.isArray<DefinitionType>(definition.type) ? definition.type : [definition.type]
+        const types = isArray<DefinitionType>(definition.type) ? definition.type : [definition.type]
 
         const validatorsByType: any = {}
         let rules: any[] = []
@@ -176,7 +180,7 @@ export class RootValidator {
         for (let type of types) {
             const validators = this.getValidator(type).getValidatorsForKey(key, definition, options, object)
             validatorsByType[type.name] = validators
-            rules = _.union(rules, Object.keys(validators))
+            rules = union(rules, Object.keys(validators))
         }
 
         if (definition.array) {
@@ -198,7 +202,7 @@ export class RootValidator {
 
     public static getValidator(type: DefinitionType): {
             getValidatorsForKey: (key: string, definition: ValidationDefinition, options: ValidationOptions, object: any) => any,
-            clean: (definition: ValidationDefinition, value: any, options: CleanOptions, object: any) => any
+            clean: (definition: ValidationDefinition, value: any, options: ValidationOptions, object: any) => any
     } {
         switch (type) {
             case String:
@@ -220,14 +224,14 @@ export class RootValidator {
         }
     }
 
-    public static clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any {
+    public static clean(definition: ValidationDefinition, value: any, options: ValidationOptions, object: any): any {
         let result: any = value
 
         if (options.removeEmptyStrings && typeof result === 'string' && value.trim().length === 0) {
             if (definition.removeEmpty !== false) {
                 result = null
             }
-        } else if (options.removeEmptyObjects && typeof result === 'object' && _.isEmpty(result) && !_.isDate(result)) {
+        } else if (options.removeEmptyObjects && typeof result === 'object' && isEmpty(result) && !isDate(result)) {
             if (definition.removeEmpty !== false) {
                 result = null
             }
@@ -236,15 +240,15 @@ export class RootValidator {
 
         if (typeof result === 'undefined' || result == null) {
             if (typeof definition.defaultValue !== 'undefined') {
-                result = _.cloneDeep(definition.defaultValue)
+                result = cloneDeep(definition.defaultValue)
             }
         }
 
-        if (options.getAutoValues && typeof definition.autoValue === 'function') {
+        if (typeof definition.autoValue === 'function') {
             result = definition.autoValue(result, object)
         }
 
-        for (let type of _.reverse(types) as DefinitionType[]) {
+        for (let type of reverse(types) as DefinitionType[]) {
             result = RootValidator.getValidator(type).clean(definition, result, options, object)
         }
 

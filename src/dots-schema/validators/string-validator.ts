@@ -1,12 +1,10 @@
-import * as moment from 'moment'
-import * as _ from 'lodash'
+import moment from 'moment'
 
 import {
     ValidationDefinition,
     ValidationResult,
     ValidationError,
-    ValidationOptions,
-    CleanOptions
+    ValidationOptions
 }  from '../interfaces'
 import { ComposedValidationResult } from '../composed-validation-result'
 import { cleaned } from '../cleaned'
@@ -59,9 +57,9 @@ export class StringValidator {
         return validators
     }
 
-    public static clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any {
+    public static clean(definition: ValidationDefinition, value: any, options: ValidationOptions, object: any): any {
 
-        if (options.autoConvert && typeof value !== 'string') {
+        if (options.castTypes && typeof value !== 'string') {
             if (typeof value === 'number' || typeof value === 'boolean') {
                 return value.toString()
             } else if (value instanceof Date) {

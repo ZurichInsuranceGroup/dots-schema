@@ -1,13 +1,28 @@
-import { CleanOptions } from './clean-options'
 
 export interface ValidationOptions {
 
     name?: String
 
-    strict?: Boolean
+    allowExtras?: Boolean
 
-    clean?: CleanOptions
+    autoClean?: Boolean
 
     context?: any
+
+    mutate?: Boolean
+
+    trimStrings?: Boolean
+
+    removeEmptyStrings?: Boolean
+
+    removeEmptyObjects?: Boolean
+
+    rounding?: 'round' | 'floor' | 'ceil'
+
+    removeExtras?: Boolean
+
+    castTypes?: Boolean
+
+    autoValueData?: any
 
 }

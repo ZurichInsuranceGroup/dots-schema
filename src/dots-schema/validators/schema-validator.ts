@@ -1,10 +1,10 @@
-import * as _ from 'lodash'
+import isObject from 'lodash.isobject'
+import isArray from 'lodash.isarray'
 
 import {
     ValidationDefinition,
     ValidationResult,
-    ValidationOptions,
-    CleanOptions
+    ValidationOptions
 }  from '../interfaces'
 import { ComposedValidationResult } from '../composed-validation-result'
 import { Schema } from '../schema'
@@ -14,7 +14,7 @@ export class SchemaValidator {
 
     public static RULES = {
         type: (value: any, key: string, definition: ValidationDefinition) => {
-            if ((typeof value !== 'undefined' && value !== null) && (!(_.isObject(value) || _.isArray(value)))) {
+            if ((typeof value !== 'undefined' && value !== null) && (!(isObject(value) || isArray(value)))) {
                 return {
                     property: key,
                     rule: 'type',
@@ -41,7 +41,7 @@ export class SchemaValidator {
         }
     }
 
-    public static clean(definition: ValidationDefinition, value: any, options: CleanOptions, object: any): any {
+    public static clean(definition: ValidationDefinition, value: any, options: ValidationOptions, object: any): any {
         const schema: Schema = definition.type as Schema
         return schema.clean(value, options)
     }

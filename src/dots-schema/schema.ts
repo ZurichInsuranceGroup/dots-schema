@@ -1,10 +1,12 @@
-import * as _ from 'lodash'
+import defaults from 'lodash.defaults'
+import cloneDeep from 'lodash.clonedeep'
+import assign from 'lodash.assign'
+import isObject from 'lodash.isobject'
 
 import {
     ValidationOptions,
     ValidationResult,
-    ValidationDefinition,
-    CleanOptions
+    ValidationDefinition
 } from './interfaces'
 import { ComposedValidationResult} from './composed-validation-result'
 import { RootValidator } from './validators/root-validator'
@@ -15,20 +17,16 @@ export class Schema {
 
     static DefaultOptions: ValidationOptions = {
         name: 'Schema',
-        clean: false,
-        strict: false,
-        context: {}
-    }
-
-    static DefaultCleanOptions: CleanOptions = {
+        autoClean: false,
+        allowExtras: false,
+        context: {},
         mutate: false,
         trimStrings: true,
         removeEmptyStrings: true,
         removeEmptyObjects: true,
         rounding: 'round',
-        filter: false,
-        autoConvert: true,
-        getAutoValues: true
+        removeExtras: false,
+        castTypes: true
     }
 
     static RegEx = {
@@ -36,13 +34,13 @@ export class Schema {
     }
 
     constructor(protected schema: any, private options: ValidationOptions = {}) {
-        _.defaults(options, Schema.DefaultOptions)
+        defaults(options, Schema.DefaultOptions)
     }
 
-    private cleanKey(key: string, object: any, options: CleanOptions = {}) {
+    private cleanKey(key: string, object: any, options: ValidationOptions = {}) {
         const definition: ValidationDefinition = this.schema[key] as ValidationDefinition
 
-        if (definition.type instanceof Function || definition.type instanceof Schema || _.isObject(definition.type)) {
+        if (definition.type instanceof Function || definition.type instanceof Schema || isObject(definition.type)) {
             return RootValidator.clean(definition, object[key], options, object)
         } else {
             throw new Error(`Invalid type '${definition.type}' used in ${this.name}`)
@@ -51,32 +49,30 @@ export class Schema {
 
     public validate(object: any, key?: string | ValidationOptions, options?: ValidationOptions): ValidationResult | null {
         if (typeof key === 'string') {
-            options = _.defaults({}, options, Schema.DefaultOptions)
+            options = defaults({}, options, Schema.DefaultOptions)
 
             const validator = this.getValidator(key, object, options)
-            if (options.clean) {
-                const cleanOptions = _.defaults({}, options.clean, Schema.DefaultCleanOptions)
-                object = this.clean(object, cleanOptions)
+            if (options && options.autoClean) {
+                object = this.clean(object, options)
             }
             return validator(object, object, options)
         } else {
-            options = _.defaults({}, key, Schema.DefaultOptions)
+            options = defaults({}, key, Schema.DefaultOptions)
 
             const validator = this.getValidator(object, options)
-            if (options.clean) {
-                const cleanOptions = _.defaults({}, options.clean, Schema.DefaultCleanOptions)
-                object = this.clean(object, cleanOptions)
+            if (options && options.autoClean) {
+                object = this.clean(object, options)
             }
             return validator(object, object, options)
         }
     }
 
-    public clean(object: any, options: CleanOptions = {}): any {
+    public clean(object: any, options: ValidationOptions = {}): any {
         if (typeof object === 'undefined' || object === null) {
             return object
         }
-        _.defaults(options, Schema.DefaultCleanOptions)
-        const result = options.mutate ? object : _.cloneDeep(object)
+        defaults(options, Schema.DefaultOptions)
+        const result = options.mutate ? object : cloneDeep(object)
 
         for (let key in this.schema) {
             if (this.schema.hasOwnProperty(key)) {
@@ -92,12 +88,12 @@ export class Schema {
     }
 
     private _getValidators(object: any, options?: ValidationOptions): any {
-        options = typeof options === 'object' ? _.defaults(options, this.options) : this.options
+        options = typeof options === 'object' ? defaults(options, this.options) : this.options
         const validators: any = {}
         for (let key in this.schema) {
             if (this.schema.hasOwnProperty(key)) {
                 const keyValidators = {}
-                _.assign(keyValidators, RootValidator.getValidatorsForKey(key, this.schema[key], options, object))
+                assign(keyValidators, RootValidator.getValidatorsForKey(key, this.schema[key], options, object))
                 validators[key] = keyValidators
             }
         }
@@ -105,7 +101,7 @@ export class Schema {
     }
 
     private _getValidatorsForKey(key: any, object?: any, options?: ValidationOptions): any {
-        options = typeof options === 'object' ? _.defaults(options, this.options) : this.options
+        options = typeof options === 'object' ? defaults(options, this.options) : this.options
         return RootValidator.getValidatorsForKey(key, this.schema[key], options, object)
     }
 
